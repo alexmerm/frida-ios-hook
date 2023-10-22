@@ -1,24 +1,27 @@
-/* Description: iOS 13 SSL Bypass based on https://codeshare.frida.re/@machoreverser/ios12-ssl-bypass/ and https://github.com/nabla-c0d3/ssl-kill-switch2
- *  Author:     @apps3c
+/* Description: iOS 13 bypass ssl pinning
+ * Mode: S
+ * Version: 1.0
+ * Credit: https://codeshare.frida.re/@machoreverser/ios12-ssl-bypass/ and https://github.com/nabla-c0d3/ssl-kill-switch2
+ * Author: @apps3c
  */
 
 try {
     Module.ensureInitialized("libboringssl.dylib");
 } catch(err) {
     console.log("libboringssl.dylib module not loaded. Trying to manually load it.")
-    Module.load("libboringssl.dylib");  
+    Module.load("libboringssl.dylib");
 }
 
 var SSL_VERIFY_NONE = 0;
 var ssl_set_custom_verify;
-var ssl_get_psk_identity;   
+var ssl_get_psk_identity;
 
 ssl_set_custom_verify = new NativeFunction(
     Module.findExportByName("libboringssl.dylib", "SSL_set_custom_verify"),
     'void', ['pointer', 'int', 'pointer']
 );
 
-/* Create SSL_get_psk_identity NativeFunction 
+/* Create SSL_get_psk_identity NativeFunction
 * Function signature https://commondatastorage.googleapis.com/chromium-boringssl-docs/ssl.h.html#SSL_get_psk_identity
 */
 ssl_get_psk_identity = new NativeFunction(
@@ -44,5 +47,5 @@ Interceptor.replace(ssl_set_custom_verify, new NativeCallback(function(ssl, mode
 Interceptor.replace(ssl_get_psk_identity, new NativeCallback(function(ssl) {
     return "notarealPSKidentity";
 }, 'pointer', ['pointer']));
-    
-console.log("[+] Bypass successfully loaded "); 
+
+console.log("[+] Bypass successfully loaded ");

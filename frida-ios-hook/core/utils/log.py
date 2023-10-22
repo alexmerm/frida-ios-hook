@@ -1,3 +1,4 @@
+import os
 import logging
 from colorlog import ColoredFormatter
 
@@ -27,7 +28,19 @@ def setup_logging():
     file_format = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
     file_handler.setFormatter(file_format)
     logger.addHandler(file_handler)
-    
+
 # setup logging for script
 setup_logging()
 logger = logging.getLogger(__name__)
+
+def deleteLog():
+    try:
+        pwd = os.getcwd()
+        path = pwd + '/errors.log'
+        file_stats = os.stat(path)
+        if (file_stats.st_size > 1024000000): #delete errors.log if file size > 1024 MB
+            os.remove(path)
+        else:
+            return True
+    except Exception as e:
+        logger.error("[x_x] Something went wrong when clear error log. Please clear error log manual.\n Message - {0}".format(e))
